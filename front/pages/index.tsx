@@ -3,6 +3,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import { ChangeEvent, useState } from "react";
 import { RequiredMark } from "../components/RequiredMark";
 import { axiosApi } from "../lib/axios";
+import { useRouter } from "next/router";
 
 // POSSTデータの型
 type LoginForm = {
@@ -14,6 +15,7 @@ type LoginForm = {
 type Validation = LoginForm & { loginFailed: string };
 
 const Home: NextPage = () => {
+  const router = useRouter();
   // POSTデータのstate
   const [loginForm, setLoginForm] = useState<LoginForm>({
     email: "",
@@ -43,6 +45,7 @@ const Home: NextPage = () => {
           .post("/login", loginForm)
           .then((response: AxiosResponse) => {
             console.log(response.data);
+            router.push("/memos");
           })
           .catch((err: AxiosError) => {
             console.log(err.response);
