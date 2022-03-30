@@ -1,9 +1,10 @@
 import { AxiosError, AxiosResponse } from "axios";
 import type { NextPage } from "next";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import { RequiredMark } from "../../components/RequiredMark";
 import { axiosApi } from "../../lib/axios";
 import { useRouter } from "next/router";
+import { useUserState } from "../../../atoms/userAtom";
 
 // POSTデータの型
 type MemoForm = {
@@ -21,6 +22,15 @@ const Post: NextPage = () => {
   const [memoForm, setMemoForm] = useState<MemoForm>({ title: "", body: "" });
   const [validation, setValidation] = useState<Validation>({});
   const router = useRouter();
+  const { user } = useUserState();
+
+  useEffect(() => {
+    // ログイン中か判定
+    if (!user) {
+      router.push("/");
+      return;
+    }
+  }, [user, router]);
 
   const createMemo = () => {
     // バリデーションメッセージの初期化

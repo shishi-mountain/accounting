@@ -4,6 +4,7 @@ import { ChangeEvent, useState } from "react";
 import { RequiredMark } from "../components/RequiredMark";
 import { axiosApi } from "../lib/axios";
 import { useRouter } from "next/router";
+import { useUserState } from "../atoms/userAtom";
 
 // POSSTデータの型
 type LoginForm = {
@@ -26,6 +27,7 @@ const Home: NextPage = () => {
     email: "",
     password: "",
   });
+  const { setUser } = useUserState();
 
   // バリデーションメッセージのstate
   // validationのプロパティをundefinedに許容したので初期値を空オブジェクトに
@@ -49,7 +51,7 @@ const Home: NextPage = () => {
         axiosApi
           .post("/login", loginForm)
           .then((response: AxiosResponse) => {
-            console.log(response.data);
+            setUser(response.data.data);
             router.push("/memos");
           })
           .catch((err: AxiosError) => {
