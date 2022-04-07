@@ -24,3 +24,9 @@ Route::get('/memos', [MemoController::class, 'fetch']);
 
 // メモ登録
 Route::post('/memos', [MemoController::class, 'create']);
+
+// ログインユーザー取得
+Route::get('/user', function() {
+    $user = Auth::user();
+    return $user ? new UserResource($user) : null;
+});

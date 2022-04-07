@@ -4,7 +4,7 @@ import { useState, ChangeEvent, useEffect } from "react";
 import { RequiredMark } from "../../components/RequiredMark";
 import { axiosApi } from "../../lib/axios";
 import { useRouter } from "next/router";
-import { useUserState } from "../../../atoms/userAtom";
+import { useAuth } from "../../hooks/useAuth";
 
 // POSTデータの型
 type MemoForm = {
@@ -22,15 +22,18 @@ const Post: NextPage = () => {
   const [memoForm, setMemoForm] = useState<MemoForm>({ title: "", body: "" });
   const [validation, setValidation] = useState<Validation>({});
   const router = useRouter();
-  const { user } = useUserState();
+  const { checkLoggedIn } = useAuth();
 
   useEffect(() => {
-    // ログイン中か判定
-    if (!user) {
-      router.push("/");
-      return;
-    }
-  }, [user, router]);
+    const init = async () => {
+      // ログイン中か判定
+      const res: boolean = await checkLoggedIn();
+      if (!res) {
+        router.push("/");
+      }
+    };
+    init();
+  }, []);
 
   const createMemo = () => {
     // バリデーションメッセージの初期化
