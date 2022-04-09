@@ -1,9 +1,10 @@
 import { AxiosError, AxiosResponse } from "axios";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import { axiosApi } from "../../lib/axios";
-import { useUserState } from "../../atoms/userAtom";
+import { Loading } from "../../components/Loading";
 
 type Memo = {
   title: string;
@@ -12,23 +13,33 @@ type Memo = {
 
 const Memo: NextPage = () => {
   const router = useRouter();
+  // state定義
   const [memos, setMemos] = useState<Memo[]>([]);
-  const { user } = useUserState();
+  const [isLoading, setIsLoading] = useState(true);
+  const { checkLoggedIn } = useAuth();
 
   // 初回レンダリング時にAPIリクエスト
   useEffect(() => {
-    if (!user) {
-      router.push("/");
-      return;
-    }
-    axiosApi
-      .get("api/memos")
-      .then((response: AxiosResponse) => {
-        console.log(response.data);
-        setMemos(response.data.data);
-      })
-      .catch((err: AxiosError) => console.log(err.response));
-  }, [user, router]);
+    const init = async () => {
+      const res: boolean = await checkLoggedIn();
+      if (!res) {
+        router.push("/");
+        return;
+      }
+      axiosApi
+        .get("/api/memos")
+        .then((response: AxiosResponse) => {
+          console.log(response.data);
+          setMemos(response.data.data);
+        })
+        .catch((err: AxiosError) => console.log(err.response))
+        // 画面へのアクセスからメモデータの取得までの間はローディング画面を表示する
+        .finally(() => setIsLoading(false));
+    };
+    init();
+  }, []);
+
+  if (isLoading) return <Loading />;
 
   return (
     <div className="w-2/3 mx-auto mt-32">
@@ -41,7 +52,7 @@ const Memo: NextPage = () => {
         </button>
       </div>
       <div className="mt-3">
-        {/* 仮データでの一覧表示 */}
+        {/* DBから取得したメモデータの一覧表示 */}
         <div className="grid w-2/3 mx-auto gap-4 grid-cols-2">
           {memos.map((memo: Memo, index) => {
             return (
