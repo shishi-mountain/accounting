@@ -5,10 +5,17 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { axiosApi } from "../../lib/axios";
 import { Loading } from "../../components/Loading";
+import MUIDataTables from "mui-datatables";
 
 type Memo = {
   title: string;
   body: string;
+};
+
+const columns = ["title", "body"];
+
+const options = {
+  filterType: "checkbox",
 };
 
 const Memo: NextPage = () => {
@@ -53,16 +60,12 @@ const Memo: NextPage = () => {
       </div>
       <div className="mt-3">
         {/* DBから取得したメモデータの一覧表示 */}
-        <div className="grid w-2/3 mx-auto gap-4 grid-cols-2">
-          {memos.map((memo: Memo, index) => {
-            return (
-              <div className="bg-gray-100 shadow-lg mb-5 p-4" key={index}>
-                <p className="text-lg font-bold mb-1">{memo.title}</p>
-                <p className="">{memo.body}</p>
-              </div>
-            );
-          })}
-        </div>
+        <MUIDataTables
+          title={"memo"}
+          data={memos}
+          columns={columns}
+          options={options}
+        />
       </div>
     </div>
   );
